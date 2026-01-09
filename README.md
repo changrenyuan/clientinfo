@@ -36,11 +36,7 @@
 
 ## 环境配置
 
-数据库连接已配置为使用 Vercel Neon 数据库：
-
-```
-PGDATABASE_URL=postgresql://neondb_owner:npg_jHA5l3TvMcWp@ep-orange-art-a1hbh3b9-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
-```
+数据库连接已配置为使用 Vercel Neon 数据库。需要在环境变量中配置 `PGDATABASE_URL`。
 
 ## 开发命令
 
@@ -190,8 +186,10 @@ DELETE /api/contacts/:id
 在 Vercel 项目设置中添加以下环境变量：
 
 ```
-PGDATABASE_URL=postgresql://neondb_owner:npg_jHA5l3TvMcWp@ep-orange-art-a1hbh3b9-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+PGDATABASE_URL=postgresql://<username>:<password>@<host>/<database>?sslmode=require
 ```
+
+请替换为实际的数据库连接信息。
 
 #### 构建配置
 
