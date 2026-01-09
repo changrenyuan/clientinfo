@@ -5,9 +5,12 @@ requires = ["nodejs-24"]
 [dev]
 build = ["bash", ".cozeproj/scripts/dev_build.sh"]
 run = ["bash", ".cozeproj/scripts/dev_run.sh"]
-deps = ["git"] # -> apt install git
+deps = ["git"]
 
 [deploy]
 build = ["bash", ".cozeproj/scripts/deploy_build.sh"]
 run = ["bash", ".cozeproj/scripts/deploy_run.sh"]
-deps = ["git"] # -> apt install git
+deps = ["git"]
+
+[env]
+PGDATABASE_URL = "postgresql://neondb_owner:npg_jHA5l3TvMcWp@ep-orange-art-a1hbh3b9-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
