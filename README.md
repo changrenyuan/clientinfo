@@ -154,4 +154,29 @@ DELETE /api/contacts/:id
 
 ## 部署说明
 
-应用已配置为使用 Vercel Neon 数据库，可以直接部署到 Vercel 或其他平台。确保在部署环境中设置 `PGDATABASE_URL` 环境变量。
+### Vercel 部署
+
+应用已配置为使用 Vercel Neon 数据库，可以直接部署到 Vercel。
+
+#### 环境变量配置
+
+在 Vercel 项目设置中添加以下环境变量：
+
+```
+PGDATABASE_URL=postgresql://neondb_owner:npg_jHA5l3TvMcWp@ep-orange-art-a1hbh3b9-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+```
+
+#### 构建配置
+
+项目已包含 `vercel.json` 配置文件，自动配置了正确的构建输出目录。
+
+#### 部署步骤
+
+1. 将代码推送到 GitHub
+2. 在 Vercel 中导入项目
+3. 配置环境变量 `PGDATABASE_URL`
+4. 点击 Deploy
+
+### 其他平台部署
+
+确保在部署环境中设置 `PGDATABASE_URL` 环境变量。
