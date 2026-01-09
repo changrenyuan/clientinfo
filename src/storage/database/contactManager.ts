@@ -72,7 +72,7 @@ export class ContactManager {
     const validated = updateContactSchema.parse(data)
     const [contact] = await db
       .update(contacts)
-      .set({ ...validated, updatedAt: new Date() })
+      .set({ ...validated, updatedAt: new Date().toISOString() })
       .where(eq(contacts.id, id))
       .returning()
     return contact || null
@@ -89,20 +89,19 @@ export class ContactManager {
    */
   async getContactsCount(search?: string): Promise<number> {
     const db = await getDb()
-    let result: [{ count: bigint }] | []
 
     if (search) {
-      result = await db
+      const result = await db
         .select({ count: sql<number>`count(*)` })
         .from(contacts)
         .where(
           sql`(${like(contacts.name, `%${search}%`)} OR ${like(contacts.phone, `%${search}%`)})`
         )
+      return Number(result[0]?.count ?? 0)
     } else {
-      result = await db.select({ count: sql<number>`count(*)` }).from(contacts)
+      const result = await db.select({ count: sql<number>`count(*)` }).from(contacts)
+      return Number(result[0]?.count ?? 0)
     }
-
-    return Number(result[0]?.count ?? 0)
   }
 }
 
