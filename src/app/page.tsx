@@ -73,6 +73,102 @@ export default function ContactManager() {
     setShowModal(true)
   }
 
+  // 智能解析粘贴的文本
+  const parsePastedText = (text: string) => {
+    const result: {
+      name: string
+      phone: string
+      address: string
+    } = {
+      name: "",
+      phone: "",
+      address: "",
+    }
+
+    // 1. 提取手机号（11位数字，1开头）
+    const phoneRegex = /1[3-9]\d{9}/
+    const phoneMatch = text.match(phoneRegex)
+    if (phoneMatch) {
+      result.phone = phoneMatch[0]
+    }
+
+    // 2. 提取姓名（匹配"收货人"、"联系人"、"姓名"等关键词）
+    const namePatterns = [
+      /收货人[:：]\s*([^\n\r]+)/,
+      /联系人[:：]\s*([^\n\r]+)/,
+      /姓名[:：]\s*([^\n\r]+)/,
+      /名字[:：]\s*([^\n\r]+)/,
+    ]
+
+    for (const pattern of namePatterns) {
+      const match = text.match(pattern)
+      if (match) {
+        // 清理可能的手机号（有些格式会把手机号和姓名放在一起）
+        let name = match[1].trim()
+        name = name.replace(phoneRegex, "").trim()
+        if (name) {
+          result.name = name
+          break
+        }
+      }
+    }
+
+    // 3. 提取地址（匹配"地址信息"、"收货地址"、"地址"等关键词）
+    const addressPatterns = [
+      /地址信息[:：]\s*([^\n\r]+)/,
+      /收货地址[:：]\s*([^\n\r]+)/,
+      /地址[:：]\s*([^\n\r]+)/,
+      /详细地址[:：]\s*([^\n\r]+)/,
+    ]
+
+    for (const pattern of addressPatterns) {
+      const match = text.match(pattern)
+      if (match) {
+        // 清理可能的手机号
+        let address = match[1].trim()
+        address = address.replace(phoneRegex, "").trim()
+        if (address) {
+          result.address = address
+          break
+        }
+      }
+    }
+
+    return result
+  }
+
+  // 粘贴识别处理
+  const handlePasteAndParse = async () => {
+    try {
+      // 尝试从剪贴板读取
+      const text = await navigator.clipboard.readText()
+      if (!text.trim()) {
+        alert("剪贴板为空，请先复制内容")
+        return
+      }
+
+      const parsed = parsePastedText(text)
+      setFormData({
+        ...formData,
+        name: parsed.name || formData.name,
+        phone: parsed.phone || formData.phone,
+        address: parsed.address || formData.address,
+      })
+    } catch (error) {
+      // 如果剪贴板访问失败，提示用户手动输入或粘贴
+      const manualInput = prompt("请粘贴联系人信息（或直接在剪贴板复制后点击确定）:")
+      if (manualInput) {
+        const parsed = parsePastedText(manualInput)
+        setFormData({
+          ...formData,
+          name: parsed.name || formData.name,
+          phone: parsed.phone || formData.phone,
+          address: parsed.address || formData.address,
+        })
+      }
+    }
+  }
+
   // 打开编辑模态框
   const openEditModal = (contact: Contact) => {
     setEditingContact(contact)
@@ -410,9 +506,21 @@ export default function ContactManager() {
             </span>
             <div className="relative z-50 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  {editingContact ? "编辑联系人" : "添加联系人"}
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    {editingContact ? "编辑联系人" : "添加联系人"}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={handlePasteAndParse}
+                    className="inline-flex items-center px-3 py-1.5 border border-blue-300 text-xs font-medium rounded text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    <svg className="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    粘贴识别
+                  </button>
+                </div>
                 <div className="mt-4 space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
